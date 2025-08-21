@@ -10,16 +10,16 @@ async def main():
         instructions="あなたは映画評論家です。キーワードに合う映画のおすすめを3つ教えてください", 
         model="gpt-5-mini"
     )
-    whether_agent = Agent(
-        name="Whether agent",
+    weather_agent = Agent(
+        name="Weather agent",
         instructions="あなたは天気情報を提供するエージェントです。対応外の地域の場合は非対応であることを伝えて終了してください。",
         model="gpt-5-mini",
-        tools=[fetch_whether],
+        tools=[fetch_weather],
     )
     triage_agent = Agent(
         name="Triage Agent",
         instructions="質問内容に応じて、適切なエージェントへハンドオフしてください。",
-        handoffs=[movie_agent, whether_agent],
+        handoffs=[movie_agent, weather_agent],
         model="gpt-5-mini",
     )
 
@@ -38,7 +38,7 @@ async def main():
 
 
 @function_tool
-def fetch_whether(city: str) -> str:
+def fetch_weather(city: str) -> str:
     """東京または埼玉の天気を取得する"""
     # https://weather.tsukumijima.net/primary_area.xml
     city_dict = {
