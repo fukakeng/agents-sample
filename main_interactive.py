@@ -5,22 +5,24 @@ from agents import Agent, Runner, function_tool, run_demo_loop
 
 
 async def main():
+    model = "gpt-4o-mini"
+
     movie_agent = Agent(
         name="Movie critic", 
         instructions="あなたは映画評論家です。キーワードに合う映画のおすすめを3つ教えてください", 
-        model="gpt-4o-mini"
+        model=model
     )
     weather_agent = Agent(
         name="weather agent",
         instructions="あなたは天気情報を提供するエージェントです。対応外の地域の場合は非対応であることを伝えて終了してください。",
-        model="gpt-4o-mini",
+        model=model,
         tools=[fetch_weather],
     )
     triage_agent = Agent(
         name="Triage Agent",
         instructions="質問内容に応じて、適切なエージェントへハンドオフしてください。",
         handoffs=[movie_agent, weather_agent],
-        model="gpt-4o-mini",
+        model=model,
     )
     movie_agent.handoffs = [triage_agent]
     weather_agent.handoffs = [triage_agent]
