@@ -1,7 +1,7 @@
 import asyncio
 
 import httpx
-from agents import Agent, Runner, function_tool
+from agents import Agent, Runner, WebSearchTool, function_tool
 
 
 async def main():
@@ -14,9 +14,13 @@ async def main():
     )
     weather_agent = Agent(
         name="Weather agent",
-        instructions="あなたは天気情報を提供するエージェントです。対応外の地域の場合は非対応であることを伝えて終了してください。",
+        instructions="""
+        あなたは天気情報を提供するエージェントです。指定された地域のidをツールを使って特定し、その地域の天気情報を取得して提供してください。
+        地域がツールでうまく特定できなかった場合は、WEB検索して天気を調べて提供してください。
+        回答は必ず全ての調査が終了してから行ってください。
+        """,
         model=model,
-        tools=[fetch_weather],
+        tools=[fetch_city_id, fetch_weather, WebSearchTool()],
     )
     triage_agent = Agent(
         name="Triage Agent",
@@ -25,12 +29,12 @@ async def main():
         model=model,
     )
 
-    result = await Runner.run(triage_agent, "東京の天気を教えてください。")
+    result = await Runner.run(triage_agent, "明日の東京の天気を教えてください。")
     print(result.final_output)
 
     print("--------------------------------------------------")
 
-    result = await Runner.run(triage_agent, "千葉の天気を教えてください。")
+    result = await Runner.run(triage_agent, "明日の箱根町の天気を教えてください。")
     print(result.final_output)
 
     print("--------------------------------------------------")
@@ -40,17 +44,18 @@ async def main():
 
 
 @function_tool
-def fetch_weather(city: str) -> str:
-    """東京または埼玉の天気を取得する"""
-    # https://weather.tsukumijima.net/primary_area.xml
-    city_dict = {
-        '東京': '130010',
-        '埼玉': '110010'
-    }
-    city_id = city_dict.get(city)
+def fetch_city_id() -> str:
+    with httpx.Client() as client:
+        response = client.get("https://weather.tsukumijima.net/primary_area.xml")
+        return response.text
+
+
+@function_tool
+def fetch_weather(city_id: str) -> str:
+    """天気を取得する"""
     if not city_id:
-        return "東京と埼玉の天気情報のみ取得可能です。"
-    
+        return "地域を特定できませんでした。"
+
     with httpx.Client() as client:
         response = client.get(f"https://weather.tsukumijima.net/api/forecast/city/{city_id}")
         return response.text
