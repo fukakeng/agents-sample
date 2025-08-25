@@ -10,8 +10,8 @@ async def main():
     triage_agent = get_triage_agent(model)
     
     for handoff in triage_agent.handoffs:
-        handoff.handoffs = [triage_agent]
-    
+        handoff.handoffs.append(triage_agent)
+
     await run_demo_loop(triage_agent)
     
 
