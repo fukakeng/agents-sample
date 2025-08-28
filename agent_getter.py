@@ -55,5 +55,6 @@ def get_triage_agent(model: str) -> Agent:
         天気に関する質問 -> Weather agent
         その他の質問 -> General agent
         """,
+        model=model,
         handoffs=[_get_movie_agent(model), _get_weather_agent(model), _get_general_agent(model)],
     )
