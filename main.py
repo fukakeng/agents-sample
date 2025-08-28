@@ -1,6 +1,6 @@
 import asyncio
 
-from agents import Runner
+from agents import InputGuardrailTripwireTriggered, Runner
 
 from agent_getter import get_triage_agent
 
@@ -21,6 +21,14 @@ async def main():
 
     result = await Runner.run(triage_agent, "SFアクション映画について教えてください。")
     print(result.final_output)
+
+    print("--------------------------------------------------")
+
+    try:
+        result = await Runner.run(triage_agent, "不適切な入力")
+        print(result.final_output)
+    except InputGuardrailTripwireTriggered as e:
+        print(f"ガードレール作動：{e.guardrail_result.output.output_info}")
 
 
 if __name__ == "__main__":

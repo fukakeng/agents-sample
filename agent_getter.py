@@ -1,6 +1,6 @@
 from agents import Agent, WebSearchTool
 
-from function_tools import fetch_city_id, fetch_weather
+from function_tools import fetch_city_id, fetch_weather, guardrail_input
 
 
 __movie_agent = Agent(
@@ -57,4 +57,5 @@ def get_triage_agent(model: str) -> Agent:
         """,
         model=model,
         handoffs=[_get_movie_agent(model), _get_weather_agent(model), _get_general_agent(model)],
+        input_guardrails=[guardrail_input]
     )
