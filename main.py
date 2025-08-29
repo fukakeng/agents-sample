@@ -3,6 +3,7 @@ import asyncio
 from agents import InputGuardrailTripwireTriggered, Runner
 
 from agent_getter import get_triage_agent
+from user_info import UserInfo
 
 
 async def main():
@@ -15,6 +16,12 @@ async def main():
     print("--------------------------------------------------")
 
     result = await Runner.run(triage_agent, "明日の箱根町の天気を教えてください。")
+    print(result.final_output)
+
+    print("--------------------------------------------------")
+    
+    user_info = UserInfo(area="横浜")
+    result = await Runner.run(triage_agent, "明日の天気を教えてください。", context=user_info)
     print(result.final_output)
 
     print("--------------------------------------------------")

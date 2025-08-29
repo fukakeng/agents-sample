@@ -1,6 +1,7 @@
 from agents import Agent, WebSearchTool
 
-from function_tools import fetch_city_id, fetch_weather, guardrail_input
+from function_tools import fetch_city_id, fetch_weather, get_user_area, guardrail_input
+from user_info import UserInfo
 
 
 __movie_agent = Agent(
@@ -47,15 +48,18 @@ def _get_general_agent(model: str) -> Agent:
 
 
 def get_triage_agent(model: str) -> Agent:
-    return Agent(
+    return Agent[UserInfo](
         name="Triage Agent",
         instructions="""
         質問内容に応じて、以下のルールに従って適切なエージェントへハンドオフしてください。
         映画に関する質問 -> Movie critic
         天気に関する質問 -> Weather agent
         その他の質問 -> General agent
+        ハンドオフする際に不足する情報がある場合は、必要に応じてユーザ情報を取得してください。
+        ハンドオフ先の専門エージェントがタスクを完了したら、その最終回答をユーザーに返してください。
         """,
         model=model,
         handoffs=[_get_movie_agent(model), _get_weather_agent(model), _get_general_agent(model)],
-        input_guardrails=[guardrail_input]
+        input_guardrails=[guardrail_input],
+        tools=[get_user_area],
     )

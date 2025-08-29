@@ -1,5 +1,7 @@
-from agents import GuardrailFunctionOutput, function_tool, input_guardrail
+from agents import GuardrailFunctionOutput, RunContextWrapper, function_tool, input_guardrail
 import httpx
+
+from user_info import UserInfo
 
 
 @function_tool
@@ -27,3 +29,8 @@ def guardrail_input(context, agent, input: str) -> GuardrailFunctionOutput:
         output_info="不適切な入力です。",
         tripwire_triggered=(input == "不適切な入力"),
     )
+
+
+@function_tool
+def get_user_area(wrapper: RunContextWrapper[UserInfo]) -> str:
+    return wrapper.context.area
